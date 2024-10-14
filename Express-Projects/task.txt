@@ -1,0 +1,523 @@
+
+----------------------MongoDB TASK---------------------------------
+
+use users_DB;
+
+db.createCollection("users");
+
+db.users.insertMany([
+    {
+        username: "shubham Kharade",
+        email: "shubham@gmail.com",
+        location: "pune",
+        deviceInfo: "Windows 10",
+        customerId: "CUST123"
+    },
+    {
+        username: "anni salve",
+        email: "anni@gmail.com",
+        location: "pune",
+        deviceInfo: "macOS",
+        customerId: "CUST456"
+    }
+]);
+
+
+
+db.createCollection("events");
+
+db.events.insertMany([
+    {
+        eventName: "Page View",
+        description: "Triggered when a user views a page",
+        createdAt: new Date()
+    },
+    {
+        eventName: "Product Click",
+        description: "Triggered when a user clicks on a product",
+        createdAt: new Date()
+    },
+    {
+        eventName: "Add to Cart",
+        description: "Triggered when a user adds a product to cart",
+        createdAt: new Date()
+    },
+    {
+        eventName: "Checkout",
+        description: "Triggered when a user checks out",
+        createdAt: new Date()
+    }
+]);
+
+
+
+
+db.createCollection("products");
+
+db.products.insertMany([
+    {
+        productId: "PROD001",
+        name: "Smartphone",
+        category: "Electronics",
+        price: 699
+    },
+    {
+        productId: "PROD002",
+        name: "Laptop",
+        category: "Electronics",
+        price: 999
+    },
+    {
+        productId: "PROD003",
+        name: "Headphones",
+        category: "Accessories",
+        price: 199
+    }
+]);
+
+
+
+
+db.createCollection("userEvents");
+
+db.createCollection("sessions");
+
+
+db.sessions.insertMany([
+    {
+        userId: ObjectId("6511b7f6f1c85e5f38f01234"),  
+        sessionId: "SESSION123",
+        startTime: new Date(),
+        endTime: null,  
+        device: "Windows 10"
+    },
+    {
+        userId: ObjectId("6511b7f6f1c85e5f38f01234"),  
+        sessionId: "SESSION456",
+        startTime: new Date(),
+        endTime: null,  
+        device: "macOS"
+    }
+]);
+
+
+
+
+
+
+db.createCollection("purchases");
+
+db.purchases.insertMany([
+    {
+        customerId: "CUST123",
+        productId: "PROD001",
+        purchaseDate: new Date(),
+        quantity: 1,
+        totalAmount: 699
+    },
+    {
+        customerId: "CUST456",
+        productId: "PROD002",
+        purchaseDate: new Date(),
+        quantity: 1,
+        totalAmount: 999
+    }
+]);
+
+
+
+----- METADATA----
+
+db.createCollection("metadata");
+
+
+db.metadata.insertMany([
+    {
+        collectionName: "users",
+        description: "Contains user information including username, email, location, and device info.",
+        fields: [
+            { field: "username", type: "String", description: "The user's name." },
+            { field: "email", type: "String", description: "The user's email address." },
+            { field: "location", type: "String", description: "The location of the user." },
+            { field: "deviceInfo", type: "String", description: "The device used by the user." },
+            { field: "customerId", type: "String", description: "Unique identifier for customers." }
+        ]
+    },
+    {
+        collectionName: "events",
+        description: "Tracks events that users trigger within the application.",
+        fields: [
+            { field: "eventName", type: "String", description: "Name of the event." },
+            { field: "description", type: "String", description: "Description of what the event does." },
+            { field: "createdAt", type: "Date", description: "Timestamp of when the event was created." }
+        ]
+    },
+    {
+        collectionName: "products",
+        description: "Contains information about products available for purchase.",
+        fields: [
+            { field: "productId", type: "String", description: "Unique identifier for the product." },
+            { field: "name", type: "String", description: "Name of the product." },
+            { field: "category", type: "String", description: "Category the product belongs to." },
+            { field: "price", type: "Number", description: "Price of the product." }
+        ]
+    },
+    {
+        collectionName: "userEvents",
+        description: "Tracks events associated with specific users.",
+        fields: [
+            { field: "userId", type: "ObjectId", description: "Reference to the user." },
+            { field: "eventId", type: "ObjectId", description: "Reference to the event." },
+            { field: "triggeredAt", type: "Date", description: "Timestamp of when the event was triggered." }
+        ]
+    },
+    {
+        collectionName: "sessions",
+        description: "Contains user session information.",
+        fields: [
+            { field: "userId", type: "ObjectId", description: "Reference to the user." },
+            { field: "sessionId", type: "String", description: "Unique identifier for the session." },
+            { field: "startTime", type: "Date", description: "Session start time." },
+            { field: "endTime", type: "Date", description: "Session end time (null if active)." },
+            { field: "device", type: "String", description: "Device used during the session." }
+        ]
+    },
+    {
+        collectionName: "purchases",
+        description: "Tracks user purchases.",
+        fields: [
+            { field: "customerId", type: "String", description: "Reference to the customer." },
+            { field: "productId", type: "String", description: "Reference to the purchased product." },
+            { field: "purchaseDate", type: "Date", description: "Timestamp of the purchase." },
+            { field: "quantity", type: "Number", description: "Quantity of the product purchased." },
+            { field: "totalAmount", type: "Number", description: "Total amount for the purchase." }
+        ]
+    }
+]);
+
+
+
+
+
+
+
+
+
+--- using $lookup, $project-------
+---------- Join purchases and users to Get Purchase Details per User------
+
+db.purchases.aggregate([
+    {
+        $lookup: {
+            from: "users",
+            localField: "customerId",
+            foreignField: "customerId",
+            as: "userDetails"
+        }
+    },
+    {
+        $lookup: {
+            from: "products",
+            localField: "productId",
+            foreignField: "productId",
+            as: "productDetails"
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            "userDetails.username": 1,
+            "userDetails.email": 1,
+            "productDetails.name": 1,
+            "productDetails.price": 1,
+            totalAmount: 1,
+            purchaseDate: 1
+        }
+    }
+]);
+
+
+
+-------- Join userEvents and events to Get Event Tracking per User ------
+-------- Lookup events triggered by users along with event descriptions ----
+
+db.userEvents.aggregate([
+    {
+        $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "userDetails"
+        }
+    },
+    {
+        $lookup: {
+            from: "events",
+            localField: "eventId",
+            foreignField: "_id",
+            as: "eventDetails"
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            "userDetails.username": 1,
+            "userDetails.location": 1,
+            "eventDetails.eventName": 1,
+            "eventDetails.description": 1,
+            triggeredAt: 1
+        }
+    }
+]);
+
+
+
+-- to get purchase with users Detils--
+
+db.purchases.aggregate([
+    {
+        $lookup: {
+            from: "users",
+            localField: "customerId",
+            foreignField: "customerId",
+            as: "userDetails"
+        }
+    },
+    {
+        $lookup: {
+            from: "products",
+            localField: "productId",
+            foreignField: "productId",
+            as: "productDetails"
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            "userDetails.username": 1,
+            "userDetails.email": 1,
+            "productDetails.name": 1,
+            "productDetails.price": 1,
+            totalAmount: 1,
+            purchaseDate: 1
+        }
+    }
+]).pretty();
+
+
+output => 
+{
+  purchaseDate: 2024-10-09T09:37:48.756Z,
+  totalAmount: 699,
+  userDetails: [
+    {
+      username: 'shubham Kharade',
+      email: 'shubham@gmail.com'
+    }
+  ],
+  productDetails: [
+    {
+      name: 'Smartphone',
+      price: 699
+    }
+  ]
+}
+{
+  purchaseDate: 2024-10-09T09:37:48.756Z,
+  totalAmount: 999,
+  userDetails: [
+    {
+      username: 'anni salve',
+      email: 'anni@gmail.com'
+    }
+  ],
+  productDetails: [
+    {
+      name: 'Laptop',
+      price: 999
+    }
+  ]
+}
+
+
+---- Get all products ------
+db.products.find({}, { _id: 0, name: 1, price: 1 }).pretty();
+
+output => 
+{
+  name: 'Smartphone',
+  price: 699
+}
+{
+  name: 'Laptop',
+  price: 999
+}
+{
+  name: 'Headphones',
+  price: 199
+}
+
+
+
+------Get specific user's purchase history by customerid------
+
+db.purchases.aggregate([
+    {
+        $match: { customerId: "CUST123" }
+    },
+    {
+        $lookup: {
+            from: "products",
+            localField: "productId",
+            foreignField: "productId",
+            as: "productDetails"
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            productId: 1,
+            "productDetails.name": 1,
+            "productDetails.price": 1,
+            totalAmount: 1,
+            purchaseDate: 1
+        }
+    }
+]).pretty();
+
+output=> 
+{
+  productId: 'PROD001',
+  purchaseDate: 2024-10-09T09:37:48.756Z,
+  totalAmount: 699,
+  productDetails: [
+    {
+      name: 'Smartphone',
+      price: 699
+    }
+  ]
+}
+
+
+
+
+---------Get Active Sessions for a User----------
+db.sessions.find({
+    userId: ObjectId("6511b7f6f1c85e5f38f01234"),
+    endTime: null 
+}).pretty();
+
+output=> 
+
+{
+  _id: ObjectId('67064eae3e2a40e7b5f087d6'),
+  userId: ObjectId('6511b7f6f1c85e5f38f01234'),
+  sessionId: 'SESSION123',
+  startTime: 2024-10-09T09:36:45.998Z,
+  endTime: null,
+  device: 'Windows 10'
+}
+{
+  _id: ObjectId('67064eae3e2a40e7b5f087d7'),
+  userId: ObjectId('6511b7f6f1c85e5f38f01234'),
+  sessionId: 'SESSION456',
+  startTime: 2024-10-09T09:36:45.998Z,
+  endTime: null,
+  device: 'macOS'
+}
+
+
+
+
+
+------------ Information about fields, types, and descriptions usign Metadata---------------
+
+db.metadata.find({}, { _id: 0, collectionName: 1, description: 1 }).pretty();
+
+
+output=>
+
+{
+  collectionName: 'users',
+  description: 'Contains user information including username, email, location, and device info.'
+}
+{
+  collectionName: 'events',
+  description: 'Tracks events that users trigger within the application.'
+}
+{
+  collectionName: 'products',
+  description: 'Contains information about products available for purchase.'
+}
+{
+  collectionName: 'userEvents',
+  description: 'Tracks events associated with specific users.'
+}
+{
+  collectionName: 'sessions',
+  description: 'Contains user session information.'
+}
+{
+  collectionName: 'purchases',
+  description: 'Tracks user purchases.'
+}
+
+
+
+
+
+
+-----------------------------------CRUD OPERATION------------------------------
+
+
+
+
+1. READ
+
+db.users.insertOne({
+    username: "Hrishi Atole",
+    email: "nHrishi@gmail.com",
+    location: "mumbai",
+    deviceInfo: "Linux",
+    customerId: "CUST789"
+});
+
+
+
+db.products.insertOne({
+    productId: "PROD004",
+    name: "Tablet",
+    category: "Electronics",
+    price: 499
+});
+
+
+
+2. READ
+
+db.users.find({}, { _id: 0, username: 1, email: 1, location: 1 }).pretty();
+
+
+db.products.find({}, { _id: 0, name: 1, price: 1 }).pretty();
+
+
+
+
+3. UPDATE
+
+db.users.updateOne(
+    { username: "shubham Kharade" }, // Filter
+    { $set: { email: "new@gmail.com" } } // Update
+);
+
+
+db.products.updateOne(
+    { productId: "PROD001" }, // Filter
+    { $set: { price: 888 } } // Update
+);
+
+
+
+4. DELETE
+
+db.sessions.deleteOne({ sessionId: "SESSION789" });

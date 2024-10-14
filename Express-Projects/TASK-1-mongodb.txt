@@ -1,0 +1,207 @@
+
+--------------------TASK-1 (MongoDB)-----------------------
+
+use user_database
+
+
+
+db.users.insertMany([
+    {
+        _id: ObjectId("648e7a61b1a30f7f4b19b1a1"),
+        username: "shubham kharade",
+        email: "shubham@gmail.com.com",
+        password: "password123",
+        createdAt: new Date(),
+    },
+    {
+        _id: ObjectId("648e7a61b1a30f7f4b19b1a2"),
+        username: "aniket bande",
+        email: "aniket@gmail.com",
+        password: "password456",
+        createdAt: new Date(),
+    },
+    {
+        _id: ObjectId("648e7a61b1a30f7f4b19b1a3"),
+        username: "Hrishi Atole",
+        email: "hrishi@gmail.com",
+        password: "password789",
+        createdAt: new Date(),
+    },
+    {
+        _id: ObjectId("648e7a61b1a30f7f4b19b1a4"),
+        username: "suraj K",
+        email: "suraj@gmail.com",
+        password: "password101",
+        createdAt: new Date(),
+    }
+]);
+
+
+
+
+
+db.events.insertMany([
+    {
+        _id: ObjectId("648e7a61b1a30f7f4b19b2a1"),
+        title: "Tech Conference 2024",
+        description: "Join us for the annual tech conference.",
+        date: new Date("2024-09-15"),
+        location: "pune",
+        createdAt: new Date(),
+        uniqueUserCount: 0,
+    },
+    {
+        _id: ObjectId("648e7a61b1a30f7f4b19b2a2"),
+        title: "Art Festival",
+        description: "A celebration of art and culture.",
+        date: new Date("2024-10-05"),
+        location: "mumbai",
+        createdAt: new Date(),
+        uniqueUserCount: 0,
+    },
+    {
+        _id: ObjectId("648e7a61b1a30f7f4b19b2a3"),
+        title: "Cooking Class",
+        description: "Learn how to cook gourmet dishes.",
+        date: new Date("2024-11-01"),
+        location: "Gao",
+        createdAt: new Date(),
+        uniqueUserCount: 0,
+    },
+    {
+        _id: ObjectId("648e7a61b1a30f7f4b19b2a4"),
+        title: "Music Concert",
+        description: "Enjoy live music from various artists.",
+        date: new Date("2024-12-20"),
+        location: "satara",
+        createdAt: new Date(),
+        uniqueUserCount: 0,
+    }
+]);
+
+
+
+
+----------------CRUD OPERATION---------------
+-- CREATE
+
+db.users.insertOne({
+    username: "omkar D",
+    email: "omkar@gmail.com",
+    password: "password202",
+    createdAt: new Date(),
+});
+
+
+
+db.events.insertOne({
+    title: "Yoga Retreat",
+    description: "A relaxing yoga retreat.",
+    date: new Date("2024-07-10"),
+    location: "pune",
+    createdAt: new Date(),
+    uniqueUserCount: 0,
+});
+
+
+-- READ
+
+db.events.findOne({ title: "Tech Conference 2024" });
+
+
+db.events.find().pretty();
+
+
+db.users.findOne({ email: "aniket@gmail.com" });
+
+
+
+--UPDATE
+
+db.events.updateOne(
+    { title: "Art Festival" },
+    { $set: { location: "Brooklyn, NY" } }
+);
+
+
+db.users.updateOne(
+    { username: "aniket bande" },
+    { $set: { email: "bande@gmail.com" } }
+);
+
+
+
+
+
+
+-- DELETE
+db.users.deleteOne({ username: "Art Festival" });
+
+db.events.deleteOne({ title: "Cooking Class" });
+
+
+
+
+
+
+const { MongoClient } = require("mongodb");
+
+// Replace the uri string with your connection string.
+const uri = "mongodb://localhost:27017/user_database";
+
+const client = new MongoClient(mongodb://localhost:27017/user_database);
+
+run().catch(console.dir);
+
+
+
+
+
+
+const { MongoClient } = require("mongodb");
+
+const uri = "mongodb://localhost:27017/user_database";
+
+async function insertMultipleUsers() {
+  const client = new MongoClient(uri);
+  try {
+    await client.connect();
+    const database = client.db("user_database");
+    const usersCollection = database.collection("users");
+
+    const usersArray = [
+      {
+        user_id: "USER124",
+        name: "virat kohli",
+        email: "viat@gmail.com",
+        mobileno: "9876545678",
+        aadhar_card: "6746534334334",
+        created_at: new Date(),
+      },
+      {
+        user_id: "USER125",
+        name: "rajesh Patel",
+        email: "rajesh@gmail.com",
+        mobileno: "1122334455",
+        aadhar_card: "76654534544324",
+        created_at: new Date(),
+      },
+      {
+        user_id: "USER126",
+        name: "omkar D",
+        email: "omkar@gmail.com",
+        mobileno: "656566576767",
+        aadhar_card: "98978677655664",
+        created_at: new Date(),
+      },
+      // Add more users as needed
+    ];
+
+    const insertManyResult = await usersCollection.insertMany(usersArray);
+    console.log("Inserted users with ids:", insertManyResult.insertedIds);
+  } finally {
+    await client.close();
+  }
+}
+
+insertMultipleUsers().catch(console.dir);

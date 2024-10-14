@@ -1,0 +1,21 @@
+{
+  "name": "express-projects",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dumy.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1",
+    "mongodb": "^6.9.0",
+    "mongoose": "^8.7.1",
+    "nodemon": "^3.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5"
+  },
+  "keywords": [],
+  "description": ""
+}
